@@ -1,31 +1,31 @@
-// Définition des notes et de leurs relations
+// Definition of notes and their relationships
 const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-// Configuration du manche de guitare (6 cordes, accordage standard)
-const guitarStrings = ['E', 'A', 'D', 'G', 'B', 'E']; // De la plus grave à la plus aiguë
-const frets = 24; // Afficher jusqu'à la 24e frette
+// Guitar neck configuration (6 strings, standard tuning)
+const guitarStrings = ['E', 'A', 'D', 'G', 'B', 'E']; // From lowest to highest
+const frets = 24; // Display up to 24th fret
 
-// Intervalles pour les différents types de triades
+// Intervals for different triad types
 const triadIntervals = {
-    major: [0, 4, 7],      // Tonique, Tierce majeure, Quinte
-    minor: [0, 3, 7],      // Tonique, Tierce mineure, Quinte
-    diminished: [0, 3, 6], // Tonique, Tierce mineure, Quinte diminuée
-    augmented: [0, 4, 8]   // Tonique, Tierce majeure, Quinte augmentée
+    major: [0, 4, 7],      // Root, Major third, Perfect fifth
+    minor: [0, 3, 7],      // Root, Minor third, Perfect fifth
+    diminished: [0, 3, 6], // Root, Minor third, Diminished fifth
+    augmented: [0, 4, 8]   // Root, Major third, Augmented fifth
 };
 
-// Fonction pour obtenir l'index d'une note
+// Function to get note index
 function getNoteIndex(note) {
     return notes.indexOf(note);
 }
 
-// Fonction pour calculer une note à partir d'un intervalle
+// Function to calculate a note from an interval
 function getNoteFromInterval(rootNote, interval) {
     const rootIndex = getNoteIndex(rootNote);
     const newIndex = (rootIndex + interval) % 12;
     return notes[newIndex];
 }
 
-// Fonction pour calculer les triades
+// Function to calculate triads
 function calculateTriads(rootNote) {
     const triads = {};
     
@@ -36,7 +36,7 @@ function calculateTriads(rootNote) {
     return triads;
 }
 
-// Fonction pour trouver les positions des notes sur le manche
+// Function to find note positions on the neck
 function findNotePositions(note) {
     const positions = [];
     
@@ -44,7 +44,7 @@ function findNotePositions(note) {
         let currentNote = stringNote;
         let fret = 0;
         
-        // Chercher la note sur cette corde
+        // Search for the note on this string
         while (fret <= frets) {
             if (currentNote === note) {
                 positions.push({
@@ -54,7 +54,7 @@ function findNotePositions(note) {
                 });
             }
             
-            // Passer à la note suivante
+            // Move to next note
             const currentIndex = getNoteIndex(currentNote);
             currentNote = notes[(currentIndex + 1) % 12];
             fret++;
@@ -64,12 +64,12 @@ function findNotePositions(note) {
     return positions;
 }
 
-// Fonction pour créer le manche de guitare
+// Function to create the guitar neck
 function createGuitarNeck(containerId, triades = []) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
-    // Palette de couleurs pour chaque triade
+    // Color palette for each triad
     const colorClasses = [
         'orange', 'blue', 'green', 'violet', 'red', 'brown',
     ];
@@ -82,7 +82,7 @@ function createGuitarNeck(containerId, triades = []) {
         brown: '#a0522d',
     };
 
-    // Construire une map note => [indices de triades où elle apparaît]
+    // Build a map note => [triad indices where it appears]
     const noteTriadMap = {};
     triades.forEach((triad, triadIdx) => {
         triad.forEach(note => {
@@ -91,12 +91,12 @@ function createGuitarNeck(containerId, triades = []) {
         });
     });
 
-    // Ajouter le sillet (frette 0) à gauche
+    // Add the nut (fret 0) to the left
     const nut = document.createElement('div');
     nut.className = 'guitar-nut';
     container.appendChild(nut);
 
-    // Créer les frettes (lignes verticales)
+    // Create frets (vertical lines)
     for (let i = 1; i <= frets; i++) {
         const fret = document.createElement('div');
         fret.className = 'guitar-fret';
@@ -104,7 +104,7 @@ function createGuitarNeck(containerId, triades = []) {
         container.appendChild(fret);
     }
 
-    // Créer les cordes (6 cordes, bien réparties, de la plus aiguë en haut à la plus grave en bas)
+    // Create strings (6 strings, well distributed, from highest at top to lowest at bottom)
     const stringCount = guitarStrings.length;
     for (let i = 0; i < stringCount; i++) {
         const string = document.createElement('div');
@@ -113,22 +113,22 @@ function createGuitarNeck(containerId, triades = []) {
         container.appendChild(string);
     }
 
-    // Afficher les notes sur chaque case
+    // Display notes on each fret
     for (let stringIdx = 0; stringIdx < stringCount; stringIdx++) {
         let openNoteIdx = getNoteIndex(guitarStrings[stringIdx]);
         for (let fret = 0; fret <= frets; fret++) {
             const noteIdx = (openNoteIdx + fret) % 12;
             const note = notes[noteIdx];
-            // Trouver à quelles triades appartient cette note
+            // Find which triads this note belongs to
             const triadIndices = noteTriadMap[note] || [];
             if (triadIndices.length === 0) continue;
             const marker = document.createElement('div');
             marker.className = 'fret-marker';
             marker.textContent = note;
-            // Décaler toutes les notes d'une case vers la gauche
+            // Shift all notes one position to the left
             let left;
             if (fret === 0) {
-                left = '-2%'; // placer avant le nut
+                left = '-2%'; // place before the nut
             } else {
                 left = `${((fret - 0.5) / frets) * 100}%`;
             }
@@ -136,19 +136,19 @@ function createGuitarNeck(containerId, triades = []) {
             marker.style.top = `${((stringCount - 1 - stringIdx) / (stringCount - 1)) * 100}%`;
             marker.style.transform = 'translate(-50%, -50%)';
             marker.style.position = 'absolute';
-            // Couleur de la bulle
+            // Marker bubble color
             if (triadIndices.length === 1) {
                 const colorClass = colorClasses[triadIndices[0] % colorClasses.length];
                 marker.classList.add(`triad-marker-${colorClass}`);
             } else if (triadIndices.length === 2) {
-                // Bulle bicolore
+                // Two-color bubble
                 const color1 = colorHex[colorClasses[triadIndices[0] % colorClasses.length]];
                 const color2 = colorHex[colorClasses[triadIndices[1] % colorClasses.length]];
                 marker.style.background = `linear-gradient(90deg, ${color1} 50%, ${color2} 50%)`;
                 marker.style.color = '#fff';
                 marker.style.border = '2px solid #888';
             } else {
-                // Plus de 2 triades : bulle grise
+                // More than 2 triads: gray bubble
                 marker.style.background = '#888';
                 marker.style.color = '#fff';
                 marker.style.border = '2px solid #222';
@@ -158,7 +158,7 @@ function createGuitarNeck(containerId, triades = []) {
     }
 }
 
-// Afficher les numéros de frettes au-dessus du manche
+// Display fret numbers above the neck
 function displayFretNumbers(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
@@ -176,7 +176,7 @@ function displayFretNumbers(containerId) {
     container.appendChild(fretNumbers);
 }
 
-// Générer dynamiquement deux lignes de cases à cocher : majeures (ligne du haut), mineures (ligne du bas), noms américains
+// Dynamically generate two rows of checkboxes: majors (top row), minors (bottom row), American names
 function renderCheckboxNotes() {
     const container = document.getElementById('checkboxNotes');
     if (!container) return;
@@ -195,7 +195,7 @@ function renderCheckboxNotes() {
         { value: 'G', label: 'G' },
         { value: 'G#', label: 'G#' },
     ];
-    // Ligne majeures
+    // Major row
     const rowMaj = document.createElement('div');
     rowMaj.className = 'checkbox-row';
     noteLabels.forEach(({ value, label }) => {
@@ -211,7 +211,7 @@ function renderCheckboxNotes() {
         rowMaj.appendChild(wrapperMaj);
     });
     container.appendChild(rowMaj);
-    // Ligne mineures
+    // Minor row
     const rowMin = document.createElement('div');
     rowMin.className = 'checkbox-row';
     noteLabels.forEach(({ value, label }) => {
@@ -229,7 +229,7 @@ function renderCheckboxNotes() {
     container.appendChild(rowMin);
 }
 
-// Fonction pour mettre à jour la légende des couleurs des triades sélectionnées
+// Function to update the color legend of selected triads
 function updateLegend(triadesInfo) {
     const legend = document.getElementById('triadLegend');
     if (!legend) return;
@@ -237,7 +237,7 @@ function updateLegend(triadesInfo) {
     const colorClasses = [
         'orange', 'blue', 'green', 'violet', 'red', 'brown'
     ];
-    // Détecter les doublons (même note+type sélectionné plusieurs fois)
+    // Detect duplicates (same note+type selected multiple times)
     const seen = {};
     triadesInfo.forEach(({ note, type, label }, idx) => {
         const key = label;
@@ -249,7 +249,7 @@ function updateLegend(triadesInfo) {
         const item = document.createElement('div');
         item.className = 'triad-legend-item';
         const colorDot = document.createElement('span');
-        // Si la même triade est sélectionnée plusieurs fois, bulle bicolore
+        // If the same triad is selected multiple times, two-color bubble
         if (seen[label].length === 2) {
             const idx1 = seen[label][0];
             const idx2 = seen[label][1];
@@ -267,7 +267,7 @@ function updateLegend(triadesInfo) {
     });
 }
 
-// Fonction utilitaire pour obtenir la couleur hex à partir du nom de classe
+// Utility function to get hex color from class name
 function getColorHex(name) {
     switch(name) {
         case 'orange': return 'orange';
@@ -280,9 +280,9 @@ function getColorHex(name) {
     }
 }
 
-// Fonction principale pour mettre à jour l'affichage
+// Main function to update the display
 function updateDisplay() {
-    // Récupérer les notes cochées et leur type de triade
+    // Get checked notes and their triad type
     const checkboxes = document.querySelectorAll('#checkboxNotes input[type=checkbox]');
     let triades = [];
     let triadesInfo = [];
@@ -303,10 +303,10 @@ function updateDisplay() {
     updateLegend(triadesInfo);
 }
 
-// Écouter les changements de sélection
+// Listen for selection changes
 document.addEventListener('DOMContentLoaded', function() {
     renderCheckboxNotes();
-    // Mettre à jour l'affichage à chaque changement de coche
+    // Update display on each checkbox change
     document.getElementById('checkboxNotes').addEventListener('change', updateDisplay);
     updateDisplay();
 }); 
