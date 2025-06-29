@@ -351,4 +351,26 @@ h1 {
     .triad-card {
         padding: 15px;
     }
+}
+
+.github-link {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.github-link a {
+    display: inline-flex;
+    align-items: center;
+    color: #667eea;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.github-link a:hover {
+    color: #5a6fd8;
+    text-decoration: underline;
 } 
